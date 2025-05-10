@@ -2,8 +2,8 @@ from flask import Flask, request
 from telegram import Bot, Update
 import os
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-GROUP_CHAT_ID = os.environ.get("GROUP_CHAT_ID")
+BOT_TOKEN = "7252963844:AAELhpxerpcaYXiff2ktagQORfMJ44ZA1Hs"
+GROUP_CHAT_ID = "-1002517942232"  # ID вашої групи
 
 bot = Bot(token=BOT_TOKEN)
 app = Flask(__name__)
@@ -33,8 +33,3 @@ def handle_update(update):
 @app.route('/')
 def home():
     return '🤖 Bot is running!'
-
-# 🟢 ВАЖЛИВО: запуск Flask сервера
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
