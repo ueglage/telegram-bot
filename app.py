@@ -8,7 +8,7 @@ GROUP_CHAT_ID = "-1002517942232"  # ID вашої групи
 bot = Bot(token=BOT_TOKEN)
 app = Flask(__name__)
 
-# Дані для меню
+# Дані для меню (не змінюємо)
 ABOUT_US_TEXT = """
 Ми - українська громада християн у Німеччині, яка об'єднана любов'ю до Бога та бажанням служити один одному. Церква, в якій Бог змінює життя. Тут кожен може знайти підтримку, надію та любов.
 
@@ -64,10 +64,10 @@ BOT_INFO_MESSAGE = """
 Просто надішліть мені потрібний файл, і я автоматично перешлю його до групи.
 """
 
-# Функція для створення інлайн-клавіатури
+# Функція для створення інлайн-клавіатури (не змінюємо)
 def get_main_menu_keyboard():
     keyboard = [
-        [InlineKeyboardButton("1. Старт", callback_data="start")],
+        [InlineKeyboardButton("1. Старт", callback_data="start_info")], # Змінено callback_data, щоб не плутати з командою /start
         [InlineKeyboardButton("2. Про нас", callback_data="about_us")],
         [InlineKeyboardButton("3. Розклад служінь", callback_data="schedule")],
         [InlineKeyboardButton("4. Контакти церкви", callback_data="contacts")]
@@ -81,15 +81,29 @@ def webhook():
     return "OK"
 
 def handle_update(update):
-    msg = update.effective_message
-    query = update.callback_query
+    # Спочатку перевіряємо, чи це натискання на кнопку (callback_query)
+    if update.callback_query:
+        query = update.callback_query
+        chat_id = query.message.chat_id
+        message_id = query.message.message_id
 
-    # Обробка команд і текстових повідомлень
-    if msg:
+        if query.data == "start_info": # Використовуємо нове callback_data
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=BOT_INFO_MESSAGE, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
+        elif query.data == "about_us":
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=ABOUT_US_TEXT, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
+        elif query.data == "schedule":
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=SCHEDULE_TEXT, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
+        elif query.data == "contacts":
+            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=CONTACTS_TEXT, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
+
+        bot.answer_callback_query(query.id) # Обов'язково відповідаємо на callback_query
+
+    # Якщо це не натискання на кнопку, тоді перевіряємо звичайні повідомлення
+    elif update.effective_message:
+        msg = update.effective_message
+
         if msg.text == "/start":
             bot.send_message(chat_id=msg.chat_id, text=WELCOME_MESSAGE, reply_markup=get_main_menu_keyboard())
-        elif msg.text and msg.text.startswith('/'): # Ігноруємо інші текстові команди
-            pass
         elif msg.document:
             bot.send_document(chat_id=GROUP_CHAT_ID, document=msg.document.file_id, caption=msg.caption)
             bot.send_message(chat_id=msg.chat_id, text="Файл успішно переслано!")
@@ -105,25 +119,8 @@ def handle_update(update):
         elif msg.voice:
             bot.send_voice(chat_id=GROUP_CHAT_ID, voice=msg.voice.file_id)
             bot.send_message(chat_id=msg.chat_id, text="Голосове повідомлення успішно переслано!")
-        elif msg.text: # Ігноруємо всі інші текстові повідомлення, які не є командами
+        elif msg.text: # Це означає, що це просто текстове повідомлення (не команда і не файл)
             bot.send_message(chat_id=msg.chat_id, text="Будь ласка, перешліть мені *файл* (фото, відео, документ, аудіо чи голосове повідомлення). Я не пересилаю текстові повідомлення в медійну групу. Для взаємодії скористайтеся меню.", parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
-
-
-    # Обробка натискань на кнопки меню
-    elif query:
-        chat_id = query.message.chat_id
-        message_id = query.message.message_id
-
-        if query.data == "start":
-            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=BOT_INFO_MESSAGE, reply_markup=get_main_menu_keyboard())
-        elif query.data == "about_us":
-            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=ABOUT_US_TEXT, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
-        elif query.data == "schedule":
-            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=SCHEDULE_TEXT, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
-        elif query.data == "contacts":
-            bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=CONTACTS_TEXT, parse_mode=ParseMode.MARKDOWN, reply_markup=get_main_menu_keyboard())
-
-        bot.answer_callback_query(query.id) # Важливо відповісти на callback_query
 
 
 @app.route('/')
