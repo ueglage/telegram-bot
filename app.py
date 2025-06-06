@@ -2,7 +2,7 @@ from flask import Flask, request
 from telegram import Bot, Update, User # Додано User для типізації
 import os
 
-BOT_TOKEN = "7252963844:AAELhpxerpcaYXiff2ktagQORfMJ44ZA1Hs" # Ваш токен
+BOT_TOKEN = "7252963844:AAGrjzhKVDt0IGW6k2pNxZM2ntJO8PPjMB8" # Ваш токен
 GROUP_CHAT_ID = "-1002517942232"  # ID вашої групи
 
 bot = Bot(token=BOT_TOKEN)
