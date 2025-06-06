@@ -73,3 +73,4 @@ def home():
 #     # Замініть 'YOUR_PUBLIC_IP_OR_DOMAIN' на вашу публічну IP адресу або домен, якщо налаштовуєте вебхук вручну
 #     # bot.set_webhook(f"https://YOUR_PUBLIC_IP_OR_DOMAIN/{BOT_TOKEN}")
 #     app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 8080)))
+Як 
